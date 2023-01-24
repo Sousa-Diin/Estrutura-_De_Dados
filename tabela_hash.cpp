@@ -137,24 +137,37 @@ class lista {
 			cout << "Inicio: " << mInicio->mDado << endl;
 		}
 		
-		No* buscarNaLista(Dado elemento){
+		Dado buscarNaLista(Dado elemento){
 			No* aux = mInicio;
 			if(listaVazia()){
 				//aux = NULL;
-				return NULL;
+				return -1;
 			}
 			while(aux != NULL){
 				if (elemento == aux->mDado){
-					return aux;
+					return aux->getDado();
 				}
 				aux = aux->mProximo;
 			}
-			return NULL;
+			return -1;
 		}
 		
-		No* getElement(Dado buscado){
+		/*No* getElement(Dado buscado){
 			 
 			return buscarNaLista(buscado);
+		}*/
+		
+		string buscar(Dado chave){
+			
+			No* aux = mInicio;
+			//Dado posAux = 0;
+			while(aux != NULL){
+				if(chave == aux->mDado){
+					return "ENCONTRADO";
+				}
+				aux = aux->mProximo;
+			}
+			return "NAOENCONTRADO";
 		}
 };
 
@@ -196,15 +209,29 @@ class tabelaHash {
 		
 		void insereElemento(No valor, Dado chave){
 			Dado posicao = calcularHash(chave);
-			lista* l ;//= criarLista();
+			lista* l = criarLista();
 			
-			l->insereNoInicio(valor.mDado);
 			mTabela[posicao]= *l;
 			
-			cout << posicao << ":\t";
+			if(l->buscar(valor.mDado) == "NAOENCONTRADO"){
+				l->insereNoFim(valor.mDado);
+				mTamanho++;
+			}
+			else{
+				cerr << "ITEM JÁ ESTÁ NA TABELA!" << endl;
+				cout << "ITEM JÁ ESTÁ NA TABELA!" << endl;
+			}
 			
-			
+			//cout << posicao << ":\t";
 			mTabela[posicao].listar();
+		}
+		
+		bool buscarChave(Dado chave){
+			Dado posicao = calcularHash(chave);
+			if(chave == mTabela[posicao].buscarNaLista(chave)){
+				return true;
+			}
+			return false;
 		}
 };
 
@@ -219,9 +246,21 @@ int main(){
 	t_hash->insereElemento(*novo, novo->getDado());
 	*novo = 27;
 	t_hash->insereElemento(*novo, novo->getDado());
-	*novo = 21;
+	/**novo = 21;
 	t_hash->insereElemento(*novo, novo->getDado());
 	*novo = 3;
 	t_hash->insereElemento(*novo, novo->getDado());
+	*/
+	cout << " Tamanho da Tabela Hash: " << t_hash->getTamanho() << endl;
+	Dado buscado;
+	cout << "entre com achave para busca: ";
+	cin >> buscado;
+	
+	if (t_hash->buscarChave(buscado) == true){
+		cout << "Elemento encontrado." << endl;
+	}else{
+		cout << "Elemento não encontrado." << endl;
+	}
+	//cout << t_hash->buscarChave(buscado) << endl;
 	return 0;
 }
