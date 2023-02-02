@@ -198,7 +198,9 @@ void BST::destroi(noh* oneNo){
     delete oneNo;
 }
 
-
+/// @brief - Função que insere elementos em uma arvore qualquer
+/// @param abb retorna arvore de busca binaria por referencia
+/// @param qtd de entrada de elemento para inserção 
 void insertAux(BST& abb, int qtd){
     int i = 0;
     Dado value;
@@ -209,7 +211,9 @@ void insertAux(BST& abb, int qtd){
     }
     abb.view();
 }
-
+/// @brief - Função que remove elemento de uma arvore qualquer
+/// @param abb retorna arvore de busca binaria por referencia
+/// @param qtd de entrada de elemento para remoção 
 void removeAux(BST& abb, int qtd){
     int i = 0;
     Dado value;
