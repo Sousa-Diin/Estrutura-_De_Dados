@@ -276,8 +276,8 @@ int main(){
 	cout << "\n\nPalavras buscadas: " << "\n";
 		  p_buscada.percorreLista();
 
-	cout << "Impressão da Tabela Hash:\\n  "<< endl;
-	th.percorreHash();
+	cout << "Impressão da Tabela Hash:  \n"<< endl;
+	//th.percorreHash();
 	/*
 	Dado mElemento;
 	cout << "Capacidade  " << th.getCap() << endl;
@@ -310,10 +310,11 @@ lista fteste(thash &th){
 
 	lista nova;
 	bool run = true;
+	cout << "busca\n";
 	while(palavra!= "-1" and run){
 		Dado chave,valor;
 		getline(cin, palavra);
-		bool condicao = chave == palavra;
+		bool condicao = (chave == palavra)? true : false;
 		
 		if(palavra != "-1"){
 		
