@@ -1,8 +1,6 @@
 //Questão 6: Árvore Binária de Busca com Contadores
 // Wildes Augusto de Sousa
 
-//Questão 2: Encontre o sucessor em uma Árvore Binária de Busca (ABB)
-// Wildes Augusto de Sousa
 #include <iostream>
 using namespace std;
 
@@ -60,7 +58,7 @@ class BST {
          }
 		~BST(){ destroi(root);}
 		void insertRec(Dado value);
-        void view();
+        void showSheet();
         noh* search(Dado element);
         void removeRec(Dado value);
         Dado minimo();
@@ -104,7 +102,7 @@ void BST::percorreInOrderAux(noh* current, int nivel){
 }
 
 
-void BST::view(){
+void BST::showSheet(){
   
     percorreInOrderAux(root, 0);
     cout << endl;
@@ -209,7 +207,7 @@ void insertAux(BST& abb, int qtd){
         abb.insertRec(value);
         i++;
     }
-    abb.view();
+    abb.showSheet();
 }
 /// @brief - Função que remove elemento de uma arvore qualquer
 /// @param abb retorna arvore de busca binaria por referencia
@@ -233,7 +231,7 @@ void removeAux(BST& abb, int qtd){
         
        // i++; ERRO "ao decrementar duplicação" STATUS corrigido 02/02/23
     }
-    abb.view();
+    abb.showSheet();
 }
 
 

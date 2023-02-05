@@ -1,22 +1,28 @@
+// Starting AVL tree implementation from BST tree 
+// Date: 04/02/2023
+// Wildes .A. Sousa
 #include <iostream>
 using namespace std;
 
 typedef int Dado; 
 
 class noh{
-	friend class BST;
+	friend class AVL;
 	private:
 		Dado value;
+        Dado height;
 		noh* right;
 		noh* left;
 	public:
         noh(){
             value = -1;
+            height = 1;
             right = NULL;
 			left = NULL;
         }
 		noh(Dado outroDado){
 			value = outroDado;
+            height = 1;
 			right = NULL;
 			left = NULL;
 		}
@@ -27,7 +33,7 @@ class noh{
 	
 }; 
 
-class BST {
+class AVL {
 	private:
 		noh* root;
         void percorreInOrderAux(noh* atual);
@@ -35,25 +41,30 @@ class BST {
         void percorrePostOrderAux(noh* current);
 		noh* insertRecAux(noh* no, Dado value, int& i);
         noh* searchAux(Dado elemento);
-        void deleteRec(noh* oneNoh);
+        int getHeight(noh* currenty);
+        int balanceFactor(noh* noh);
+        noh* rightRotate(noh* currenty);
+        noh* lefttRotate(noh* currenty);
+        noh* leftRightRotation(noh* currenty);
+        noh* righLefttRotation(noh* currenty);    
 		
 	public:
-		 BST(){
+		 AVL(){
             root = NULL;
          }
-		~BST(){}
+		~AVL(){}
 		void insertRec(Dado value);
         void showSheet();
         noh* search(Dado element);
 };
 
-void BST::insertRec( Dado value){
+void AVL::insertRec( Dado value){
     int i = 1;
 	root = insertRecAux(root, value,i);
     //cout << "quantidade de noh: " << i << endl;
 }
 
-noh* BST::insertRecAux(noh* oneNo, Dado oneValue,int& i){
+noh* AVL::insertRecAux(noh* oneNo, Dado oneValue,int& i){
 	if (oneNo == NULL){
 		noh* myNew = new noh(oneValue);
         return myNew;
@@ -73,21 +84,21 @@ noh* BST::insertRecAux(noh* oneNo, Dado oneValue,int& i){
     return oneNo;
 }
 
-void BST::percorreInOrderAux(noh* current){
+void AVL::percorreInOrderAux(noh* current){
     if(current != NULL){
         percorreInOrderAux(current->left);
         cout << current->value << " ";
         percorreInOrderAux(current->right);
     }
 }
-void BST::percorrePreOrderAux(noh* current){
+void AVL::percorrePreOrderAux(noh* current){
     if(current != NULL){
         cout << current->value << " ";
         percorrePreOrderAux(current->left);
         percorrePreOrderAux(current->right);
     }
 }
-void BST::percorrePostOrderAux(noh* current){
+void AVL::percorrePostOrderAux(noh* current){
     if(current != NULL){
         percorreInOrderAux(current->left);
         percorreInOrderAux(current->right);
@@ -96,24 +107,8 @@ void BST::percorrePostOrderAux(noh* current){
 }
 
 
-void BST::showSheet(){
-    /*char order;
-	cin >> order;
-    switch(order){
-        case '1': 
-            cout << "In Pre Order: ";
-            percorrePreOrderAux(root);
-            break;
-        case '2':
-            cout << "\nIn Order: ";
-            percorreInOrderAux(root);
-            break;
-        case '3':
-            cout << "\nIn Post Order: ";
-            percorrePostOrderAux(root);
-            break;
-    }
-    */
+void AVL::showSheet(){
+
     percorrePreOrderAux(root);
     cout << endl;
     percorreInOrderAux(root);
@@ -122,7 +117,7 @@ void BST::showSheet(){
 }
 
 		
-noh* BST::searchAux(Dado elemento){
+noh* AVL::searchAux(Dado elemento){
     noh* atual = root;
     while (atual != NULL) {
         if (atual->value == elemento) {
@@ -135,7 +130,7 @@ noh* BST::searchAux(Dado elemento){
     }
     return atual;
 }
-noh* BST::search(Dado element){
+noh* AVL::search(Dado element){
     noh* wanted = searchAux(element);
     if (wanted == NULL){
         cout << "Não encontrado ";
@@ -147,11 +142,14 @@ noh* BST::search(Dado element){
 	return NULL;
 }
 
-void BST::deleteRec(noh* oneNoh){
+int AVL::getHeight(noh* currenty){}
+int AVL::balanceFactor(noh* noh){}
+noh* AVL::rightRotate(noh* currenty){}
+noh* AVL::lefttRotate(noh* currenty){}
+noh* AVL::leftRightRotation(noh* currenty){}
+noh* AVL::righLefttRotation(noh* currenty){}
 
-}
-
-int wanted(BST& abb, int search){
+int wanted(AVL& abb, int search){
     noh* wanted = abb.search(search);
     if(wanted == NULL)
         cout << "elemento não pertence à árvore." << endl;
@@ -160,21 +158,21 @@ int wanted(BST& abb, int search){
 
 int main() {
 
-	BST abb;
+	AVL avl;
     Dado newDado;
     while(cin >> newDado and newDado != -1){
         if(newDado > 0){
-            abb.insertRec(newDado);
+            avl.insertRec(newDado);
         }
     }
     
 	cout << "Dado da árvore binaria: " << endl;
-    abb.showSheet();
+    avl.showSheet();
     cout << endl;
 
     cout << "buscar na árvore binaria: " << endl;
     cin >> newDado;
-    cout << wanted(abb,newDado) << endl;
+    cout << wanted(avl,newDado) << endl;
    
 
   return 0;

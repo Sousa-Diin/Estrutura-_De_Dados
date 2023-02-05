@@ -1,4 +1,4 @@
-//Questão ?: 
+//Questão 1: Contagem dos nós folha de uma Árvore Binária de Busca (ABB)
 // Wildes Augusto de Sousa
 #include <iostream>
 using namespace std;
@@ -11,6 +11,7 @@ class noh{
 		Dado value;
         noh* left;
 		noh* right;
+        int level;
         int rightCount;
         int leftCount;
 		
@@ -19,6 +20,7 @@ class noh{
             value = -1;
             rightCount = 0;
             leftCount = 0;
+            level = 0;
             right = NULL;
 			left = NULL;
         }
@@ -32,6 +34,9 @@ class noh{
         Dado getValue(){
             return value;
         }
+        int isSheet(){
+            return (right == NULL and left == NULL );
+        }
 
 	
 }; 
@@ -39,16 +44,9 @@ class noh{
 class BST {
 	private:
 		noh* root;
-        void percorreInOrderAux(noh* atual);
-        void percorrePreOrderAux(noh* current);
-        void percorrePostOrderAux(noh* current);
+        void percorreInOrderAux(noh* atual,int& qtdNode);
 		noh* insertRecAux(noh* no, Dado value);
-        noh* removeRecAux(noh* oneNo, Dado value);
-        noh* removeSmaller(noh* rootSub);
-        noh* miniAux(noh* rootSubTree);
-        noh* searchAux(Dado elemento);
-        void deleteRec(noh* oneNoh);
-        noh* maximoAux(noh* rootSubTree);
+        void levelInOrderAux(noh* current, int level, int index);
         
 		
 	public:
@@ -57,14 +55,8 @@ class BST {
          }
 		~BST(){}
 		void insertRec(Dado value);
-        void view();
-        noh* search(Dado element);
-        void removeRec(Dado value);
-        Dado maximo();
-        Dado minimo();
-        int countNodeLeft();
-        int countNodeRight();
-        int countNodeTree();
+        void showSheet();
+        void viewLevel(int index);
 };
 
 void BST::insertRec( Dado value){
@@ -93,201 +85,72 @@ noh* BST::insertRecAux(noh* oneNo, Dado oneValue){
    
     return oneNo;
 }
-
-void BST::percorreInOrderAux(noh* current){
-    if(current != NULL){
-        percorreInOrderAux(current->left);
-        cout << current->value << " ";
-        percorreInOrderAux(current->right);
-    }
-}
-/*
-void BST::percorrePreOrderAux(noh* current){
-    if(current != NULL){
-        cout << current->value << " ";
-        percorrePreOrderAux(current->left);
-        percorrePreOrderAux(current->right);
-    }
-}
-void BST::percorrePostOrderAux(noh* current){
-    if(current != NULL){
-        
-        percorrePostOrderAux(current->left);
-        percorrePostOrderAux(current->right);
-        cout << current->value << " ";
-    }
+/// @brief Função que imprime os node nível a nível
+/// @param current raiz
+/// @param level inicia o nível, e captura o nivel de cada node e atualiza o atributo da class noh
+/// @param index seta o nivel para impressão
+void BST::levelInOrderAux(noh* current, int level, int index){
     
-}
-*/
+    if(current){
+        
+        levelInOrderAux(current->left, level+1, index);
+        current->level= level; /*** atualiza o nivel de cada node***/
+       
+        //impressão referente a cada nivel
+        if(current->level == index){
+            cout << current->value  << " ";
 
-void BST::view(){
-   
-    percorreInOrderAux(root);
+        }
+        levelInOrderAux(current->right, level+1,index);
+        
+    }
+}
+/// @brief Walks the subtrees and catches quatity of node
+/// @param current root
+/// @param qtdNode catches quatity of node
+void BST::percorreInOrderAux(noh* current,int& qtdNode){
+    if(current != NULL){
+        percorreInOrderAux(current->left, qtdNode);
+        //cout << current->value <<  " ";
+        percorreInOrderAux(current->right, qtdNode);
+        qtdNode += current->isSheet();
+    }
+}
+/// @brief Show all the node of the level 
+/// @param index seta the level 
+void BST::viewLevel(int index){
+    
+    levelInOrderAux(root, 0, index);
     cout << endl;
 }
 
-		
-noh* BST::searchAux(Dado elemento){
-    noh* atual = root;
-    while (atual != NULL) {
-        if (atual->value == elemento) {
-            return atual;
-        } else if (elemento < atual->value ) {
-            atual = atual->left;
-        } else {
-            atual = atual->right;
-        }
-    }
-    return atual;
+/// @brief View quantity of Node
+void BST::showSheet(){
+    int qtdNode = 0;
+    percorreInOrderAux(root, qtdNode);
+    cout << qtdNode << endl;
+    cout << endl;
 }
-noh* BST::search(Dado element){
-    noh* wanted = searchAux(element);
-    if (wanted == NULL){
-        cout << "Não encontrado ";
-    } else {
-        // efetua ação desejada, 
-        return wanted; 
-    }
-
-	return NULL;
-}
-
-
-noh* BST::removeRecAux(noh* oneNo, Dado value){
-   if (oneNo == NULL){
-        cout << "ERRO: ";
-   }
-    noh* subTree = oneNo;
-    // valor menor que nó atual, vai para subárvore esquerda
-    if ( value < oneNo->value ) {
-    oneNo->left = removeRecAux(oneNo->left, value);
-    // valor maior que nó atual, vai para subárvore direita
-    }else if( value > oneNo->value ) {
-    oneNo->right = removeRecAux(oneNo->right, value);
-   
-    } else{ 
-        // nó não tem filhos à esquerda
-        if (oneNo->left == NULL) {
-            subTree = oneNo->right;
-        // nó não tem filhos à direita
-        } else if (oneNo->right == NULL) {
-            subTree = oneNo->left;
-        } else { 
-            subTree = miniAux(oneNo->right);
-            subTree->right = removeSmaller(oneNo->right); 
-            subTree->left = oneNo->left;
-        }
-        delete oneNo;
-
-    }
-   
-    return subTree;
-}
-
-void BST::removeRec(Dado value){
-   root = removeRecAux(root, value);
-}
-
-noh* BST::removeSmaller(noh* rootsub){
-    if (rootsub->left == NULL) {
-        return rootsub->right;
-    } else {
-        rootsub->left =  removeSmaller(rootsub->left);
-    return rootsub;
-    } 
-
-}
-
-noh* BST::miniAux(noh* rootSubTree){
-    while (rootSubTree->left != NULL) {
-        rootSubTree = rootSubTree->left;
-    }
-    return rootSubTree;
-}
-
-Dado BST::minimo(){
-    if (root == NULL) {
-        //geraErro(“Árvore vazia”);
-    } else {
-        noh* nohMinimo = miniAux(root);
-        return nohMinimo->value;
-    }
-}
-
-
-Dado BST::maximo(){
-    if (root == NULL) {
-        //geraErro(“Árvore vazia”);
-    } else {
-        noh* nohMaximo = maximoAux(root);
-        return nohMaximo->value;
-    }
-}
-noh* BST::maximoAux(noh* rootSubTree){
-    while (rootSubTree->right != NULL) {
-        rootSubTree = rootSubTree->right;
-    }
-    return rootSubTree;
-}
-
-
-int BST::countNodeRight(){
-    return root->rightCount;
-}
-
-int BST::countNodeLeft(){
-    return root->leftCount;
-}
-
-int BST::countNodeTree(){
-    return 1 + countNodeRight() + countNodeLeft();
-}
-
-
+/// @brief Função que executa tarefa expecifica da questao 1 do Dredd 
+/// @param abb Benary Search Tree
 void menu(BST& abb){
-    char op;
-    Dado max,min = -1;
+    
+    Dado value;
+    int qtd;
+    cin >> qtd;
+    while(qtd > 0){
+        //cout << "para inserir uma chave  ";
+        cin >> value;
+        abb.insertRec(value);
+        qtd--;
 
-    while(cin >> op and op != 'f'){
-        Dado value;
-        switch(op){
-            case 'i':
-                //cout << "para inserir uma chave  ";
-                cin >> value;
-                abb.insertRec(value);
-
-                break;
-            case 'e':
-                cout << "para escrever o conteúdo da árvore\n";
-                break;
-            case 's':
-                //cout << "para escrever todos os sucessores de uma chave\n";
-                
-                max = abb.maximo();
-                min = abb.minimo();
-                cout << " Maximo: " << max << endl;
-                cout << " Minimo: " << min << endl;
-                break;
-            case 'q':
-                cout << " Quantidade de nó da Tree: " << abb.countNodeTree() << endl;
-                cout << " Quantidade de nó da SubEsq: " << abb.countNodeLeft() << endl;
-                cout << " Quantidade de nó da SubDir: " << abb.countNodeRight() << endl;
-                cout << " Diferença das Subárvores: " << abb.countNodeLeft() - abb.countNodeRight() << endl;
-
-                break;
-            case 'f':
-                cout << "para finalizar a execução do programa\n";
-                break;
-
-        }
     }
+    abb.showSheet();
 }
 
 int main(){
     BST abb;
     menu(abb);
-
-    abb.view();
     cout << endl;
 
     return 0;
