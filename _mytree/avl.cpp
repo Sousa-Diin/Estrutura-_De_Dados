@@ -10,7 +10,7 @@ class noh{
 	friend class AVL;
 	private:
 		Dado value;
-        Dado height;
+        unsigned height;
 		noh* right;
 		noh* left;
 	public:
@@ -41,12 +41,14 @@ class AVL {
         void percorrePostOrderAux(noh* current);
 		noh* insertRecAux(noh* no, Dado value, int& i);
         noh* searchAux(Dado elemento);
-        int getHeight(noh* currenty);
+        unsigned getHeight(noh* current);
+        unsigned maxheight(unsigned rightHeight, unsigned leftHeight);
+        void updateHeight(noh* currenty);
         int balanceFactor(noh* noh);
-        noh* rightRotate(noh* currenty);
-        noh* lefttRotate(noh* currenty);
-        noh* leftRightRotation(noh* currenty);
-        noh* righLefttRotation(noh* currenty);    
+        noh* rightRotate(noh* current);
+        noh* lefttRotate(noh* current);
+        noh* leftRightRotation(noh* current);
+        noh* righLefttRotation(noh* current);    
 		
 	public:
 		 AVL(){
@@ -65,22 +67,31 @@ void AVL::insertRec( Dado value){
 }
 
 noh* AVL::insertRecAux(noh* oneNo, Dado oneValue,int& i){
+    int fb =0;
 	if (oneNo == NULL){
 		noh* myNew = new noh(oneValue);
         return myNew;
 	}else if(oneValue < oneNo->value){
 
         oneNo->left = insertRecAux(oneNo->left, oneValue, i);
+        updateHeight(oneNo->left);
+        fb = balanceFactor(oneNo);
+        cout << oneNo->value << "/ Fb = "  << fb << " => ";
+        //cout << current->value << "/ Fb = " << " =>";
         
     }else if (oneValue > oneNo->value){
 
         oneNo->right = insertRecAux(oneNo->right, oneValue, i);
-        
+        fb = balanceFactor(oneNo);
+        cout << oneNo->value << "/ Fb = "  << fb << " => ";
+        updateHeight(oneNo->right);
     }else{
         //throw(repeat key in insertion"");
         cout << "\nERRO: \"key repeat on insertion\"\n";
     }
     i+=1;
+    
+    updateHeight(root);
     return oneNo;
 }
 
@@ -93,13 +104,16 @@ void AVL::percorreInOrderAux(noh* current){
 }
 void AVL::percorrePreOrderAux(noh* current){
     if(current != NULL){
-        cout << current->value << " ";
+        cout << current->value << "/ " << current->height << " ->";
+        //updateHeight(current);
         percorrePreOrderAux(current->left);
         percorrePreOrderAux(current->right);
     }
 }
 void AVL::percorrePostOrderAux(noh* current){
+
     if(current != NULL){
+        
         percorreInOrderAux(current->left);
         percorreInOrderAux(current->right);
         cout << current->value << " ";
@@ -141,13 +155,40 @@ noh* AVL::search(Dado element){
 
 	return NULL;
 }
+/// @brief node height catch 
+/// @param currenty node
+/// @return the current node height 
+unsigned AVL::getHeight(noh* currenty){
+    if(!currenty){
+        return 0;
+    }
+    return currenty->height;
+}
+/// @brief Function that update the node height
+/// @param current current node
+void AVL::updateHeight(noh* current){
+    unsigned rightHeight = getHeight(current->right);
+    unsigned leftHeight = getHeight(current->left);
+    current->height = 1 + maxheight(leftHeight, rightHeight);
+}
+/// @brief Function that verify the maximum param of height 
+/// @param rightHeight right height
+/// @param leftHeight left height
+/// @return maximum height
+unsigned AVL::maxheight(unsigned rightHeight, unsigned leftHeight){
+    if(leftHeight >= rightHeight){
+        return leftHeight;
+    }
+    return rightHeight;
+}
 
-int AVL::getHeight(noh* currenty){}
-int AVL::balanceFactor(noh* noh){}
-noh* AVL::rightRotate(noh* currenty){}
-noh* AVL::lefttRotate(noh* currenty){}
-noh* AVL::leftRightRotation(noh* currenty){}
-noh* AVL::righLefttRotation(noh* currenty){}
+int AVL::balanceFactor(noh* noh){
+    return getHeight(noh->left) - getHeight(noh->right);
+}
+noh* AVL::rightRotate(noh* current){}
+noh* AVL::lefttRotate(noh* current){}
+noh* AVL::leftRightRotation(noh* current){}
+noh* AVL::righLefttRotation(noh* current){}
 
 int wanted(AVL& abb, int search){
     noh* wanted = abb.search(search);
