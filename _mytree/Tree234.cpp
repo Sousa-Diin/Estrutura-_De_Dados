@@ -20,11 +20,11 @@ class No {
 			//cout << "Nó criado" << endl;
 		}
 		
-		int getDado(){
+		dataType getDado(){
 			return mDado;
 		}
 		
-		int getRef(){
+		dataType getRef(){
 			return mRef;
 		}
 };
@@ -37,6 +37,9 @@ class lista {
 		unsigned mTamanho;
 		No* mInicio;
 		No* mFim;
+        dataType begin(){
+            return mInicio->mDado;
+        }
 	public:
 		lista(){
 			mTamanho = 0;
@@ -45,6 +48,11 @@ class lista {
 		}
 		
 		~lista(){
+            No* aux = mInicio;
+            while(aux != NULL){
+                removeNoInicio();
+                aux = aux->mProximo; 
+            }
 			
 		}
 		
@@ -71,7 +79,24 @@ class lista {
 			}
 			
 		}
-		
+
+        dataType removeNoInicio(){
+            dataType value;
+            if (listaVazia()){
+                //sairComErro();
+            }else{
+                No* aux = mInicio;
+                value = aux->mDado;
+                mInicio = aux->mProximo;
+                delete aux;
+                mTamanho--;
+                if( listaVazia()){
+                    mFim = NULL;
+                }
+            } 
+            return value;
+        }
+
 		void insereNoFim(dataType z){
 			if (listaVazia()){
 				insereNaListaVazia(z);
@@ -83,6 +108,31 @@ class lista {
 			}
 			
 		}
+
+        dataType removeNoFim(){
+            dataType value;
+            if (listaVazia()){
+                //sairComErro();
+            }else{
+                No* aux = mInicio;
+                No* anterior = NULL;
+                while(aux->mProximo != NULL){
+                    anterior = aux;
+                    aux = aux->mProximo;
+                }
+                value = aux->mDado;
+                if(anterior == NULL){
+                    mInicio = NULL;
+                }else{
+                    anterior->mProximo = NULL;
+                }
+                delete mFim;
+                mFim = anterior;
+                mTamanho--;
+            
+            } 
+            return value;
+        }
 		
 		void insereNaLista(dataType v, unsigned pos){
 			
@@ -116,8 +166,11 @@ class lista {
 				cout << aux->mDado << " ";
 				aux = aux->mProximo;
 			}
-			cout << endl;
+			//cout << endl;
 		}
+         dataType getKey(){
+            return removeNoInicio();
+         }
 		
 		void listar(){
 			No*aux = mInicio;
@@ -164,7 +217,7 @@ class lista {
 class node{
     friend class Tree234;
     private:
-        dataType keys[keyMax];
+        lista keys;
         node* parent;
         node* children[sonMax];
         unsigned countKey;
@@ -175,6 +228,7 @@ class node{
         }
         // burst = explodiu 
         bool burst(){
+            unsigned countKey = keys.getTamanho();
             cout << " qtd de key: " << countKey << " qtd maxima de key: " << keyMax << endl;
             return countKey == keyMax;
         }
@@ -189,7 +243,7 @@ class node{
 
         node(dataType key){
             this->parent = NULL;
-            this->keys[0] = key;
+            this->keys.insereNoInicio(key);
             for(int i = 0; i < sonMax;i++)
                 this->children[i] = NULL;
             this->countKey = 1;
@@ -217,29 +271,50 @@ class Tree234 {
         ~Tree234(){
 
         }
-        /// @brief Função que dividi o vetor de chaves qcaso atinja a capacidade maxima
-        void split (){
-            
+        /// @brief Função que dividi a lista de chaves caso atinja a capacidade maxima
+        node* split (node* raiz){
+            dataType left = raiz->keys.removeNoInicio();
+            dataType right = raiz->keys.removeNoFim();
+            dataType dad = raiz->keys.removeNoInicio();
+            raiz->keys.~lista();
+            raiz->parent = new node(dad);
+            raiz->children[0] = new node(left);
+            raiz->children[1] = new node(right);
+            return raiz;
         }
 
         void insert(dataType key){
             if (root == NULL){
                 root = new node(key);
-            }else if(not root->burst()){
+            }else if(not root->burst() and root->keys.getTamanho()){ // se não estourou add chave
             
-                root->keys[root->countKey++] = key;
+                if(key < root->keys.begin()){
+                    root->keys.insereNoInicio(key);
+                }else{
+                    root->keys.insereNoFim(key);
+                }
+                    
             }else{
-                cout << key << " - [X]" << "Limite maximo de chaves alcançado..." << endl;
+                root = split(root);
+                cout << key << " - [X]" << "Limite maximo de chaves alcançado..." << "Removendo inicio: " << root->keys.removeNoFim() << endl;
             }
         }
 
         void view(){
             cout << "[";
-            for(int i = 0; i < keyMax; i++)
-               cout << root->keys[i] << " ";
+            root->keys.percorreLista();
             cout << "]";
 
             cout << (root->burst()) ? "Verdadeiro" : "Falso";
+        }
+
+        void mostraFilho(){
+            int pos = 0;
+            while(pos < sonMax){
+                
+                cout << root->children[pos++]->parent-><< "|";
+            }
+            cout << endl;
         }
 };
 
@@ -252,6 +327,10 @@ int main( )
     ttf.insert(36);
     ttf.view();
     cout << endl;
+
+    cout << "Nos filhos: ";
+    ttf.mostraFilho();
     /* code */
+    ttf.view();
     return 0;
 }
