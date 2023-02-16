@@ -2,8 +2,8 @@
 using namespace std;
 
 typedef int dataType;
-const unsigned int sonMax = 4;
-const unsigned int keyMax = 3;
+const unsigned int capacidadeFilho = 4;
+const unsigned int capacidadeChave = 3;
 
 
 class No {
@@ -219,40 +219,49 @@ class node{
     private:
         lista keys;
         node* parent;
-        node* children[sonMax];
-        unsigned countKey;
+        node* children[capacidadeFilho];
+        unsigned qtdFilhoAtual;
+        bool isSheet;
+
         void cleanChild(){
-            for(int i = 0; i < sonMax; i++){
+            for(int i = 0; i < capacidadeFilho; i++){
                 children[i] = NULL;
             }
         }
         // burst = explodiu 
         bool burst(){
             unsigned countKey = keys.getTamanho();
-            cout << " qtd de key: " << countKey << " qtd maxima de key: " << keyMax << endl;
-            return countKey == keyMax;
+            cout << " qtd de key: " << countKey << " qtd maxima de key: " << capacidadeChave << endl;
+            return countKey == capacidadeChave;
         }
 
     public:
         node(){
             this->parent = NULL;
-            for(int i = 0; i < sonMax;i++)
+            for(int i = 0; i < capacidadeFilho;i++)
                 this->children[i] = NULL;
-            this->countKey = 0;
+            
+            this->isSheet = true;
         }
 
         node(dataType key){
             this->parent = NULL;
-            this->keys.insereNoInicio(key);
-            for(int i = 0; i < sonMax;i++)
+            this->keys.insereNaListaVazia(key);
+            for(int i = 0; i < capacidadeFilho;i++)
                 this->children[i] = NULL;
-            this->countKey = 1;
+            //this->countKey = 1;
+            this->isSheet = true;
         }
 
         ~node(){
             cleanChild();
             delete *children;
             delete parent;
+        }
+        void cleanKey(node* umNoh){
+            
+            umNoh->keys.~lista();
+            
         }
 
 
@@ -273,14 +282,19 @@ class Tree234 {
         }
         /// @brief Função que dividi a lista de chaves caso atinja a capacidade maxima
         node* split (node* raiz){
-            dataType left = raiz->keys.removeNoInicio();
-            dataType right = raiz->keys.removeNoFim();
-            dataType dad = raiz->keys.removeNoInicio();
-            raiz->keys.~lista();
-            raiz->parent = new node(dad);
-            raiz->children[0] = new node(left);
-            raiz->children[1] = new node(right);
-            return raiz;
+            node* temp = raiz;
+            dataType left = temp->keys.removeNoInicio();
+            dataType right = temp->keys.removeNoFim();
+            dataType dad = temp->keys.removeNoInicio();
+            /*cout << "dad: " << dad << endl;
+            cout << "left: " << left << endl;
+            cout << "right: " << right << endl;*/
+            delete raiz;
+            temp->children[0] = new node(left);
+            temp->children[1] = new node(right);
+            temp->parent = new node(dad); temp->parent->isSheet = false;
+            //cout << "parent: " << temp->parent->keys[0] << endl;
+            return temp;
         }
 
         void insert(dataType key){
@@ -295,25 +309,46 @@ class Tree234 {
                 }
                     
             }else{
+                view();
                 root = split(root);
-                cout << key << " - [X]" << "Limite maximo de chaves alcançado..." << "Removendo inicio: " << root->keys.removeNoFim() << endl;
+                //cout << key << " - [X]" << "Limite maximo de chaves alcançado..." << endl;
+                /*Arrumar duplicidade de código*/
+                if(key < root->parent->keys.begin()){
+                    //insere na esquerda
+                    if(key < root->children[0]->keys.begin())
+                        root->children[0]->keys.insereNoInicio(key);
+                    root->children[0]->keys.insereNoFim(key);
+                }else{
+                    // insere na direita
+                    cout << "entrou na condição do filho a diretia." << endl;
+                    if(key < root->children[1]->keys.begin())
+                        root->children[1]->keys.insereNoInicio(key);
+                    root->children[1]->keys.insereNoFim(key);
+                }
+                
             }
         }
 
         void view(){
             cout << "[";
+            
             root->keys.percorreLista();
+         
             cout << "]";
 
-            cout << (root->burst()) ? "Verdadeiro" : "Falso";
         }
 
         void mostraFilho(){
-            int pos = 0;
-            while(pos < sonMax){
                 
-                cout << root->children[pos++]->parent-><< "|";
-            }
+            cout <<"\t";
+            root->parent->keys.percorreLista();
+            
+            cout << "\n";
+            root->children[0]->keys.percorreLista();
+            cout << "\t\t";
+            root->children[1]->keys.percorreLista();
+            
+            
             cout << endl;
         }
 };
@@ -323,14 +358,18 @@ int main( )
     Tree234 ttf;
     ttf.insert(40);
     ttf.insert(12);
+    ttf.insert(60);
     ttf.insert(68);
     ttf.insert(36);
-    ttf.view();
+    ttf.insert(38);
+    //ttf.insert(60);
+    ttf.insert(48);
+    //ttf.view();
     cout << endl;
 
-    cout << "Nos filhos: ";
     ttf.mostraFilho();
     /* code */
-    ttf.view();
+    //ttf.view();
+    cout << endl;
     return 0;
 }
