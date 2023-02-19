@@ -17,9 +17,10 @@ int main(){
         menu();
         cin >> op;
         processa_dado(l, op);
+        cout << "voltou para loop.\n";
     }while(op != 's');
     
-
+    cout << "saiu do loop..\n";
     return 0;
 }
 
@@ -43,6 +44,7 @@ void processa_dado(lista& ll, char op){
 
         cout << "insere normal" << "\n";
         cin >> dado;
+        No* search;
         ll.insereNoInicio(dado);
         cout << endl;
         break;
@@ -54,12 +56,24 @@ void processa_dado(lista& ll, char op){
         break;
     case 'r':
         cout << "remove no fim. " << "\n";
+        cin >> dado;
+        ll.removeNoFim();
         break;
     case 'd':
         cout << "remove no inicio" << "\n";
+        cin >> dado;
+        ll.removeNoInicio();
         break;
     case 'a':
         cout << "altera dados" << "\n";
+        cin >> dado;
+        search = ll.buscarNaLista(dado);
+        if(search != NULL){
+            cout << search->getRef() << endl;
+            cout << search->getDado() << endl;
+        }else{
+            cout << "Me desculpe elemento não encontrado!" << endl;
+        }
         break;
     case 'v':
         cout << "visualiza dados..." << "\n";

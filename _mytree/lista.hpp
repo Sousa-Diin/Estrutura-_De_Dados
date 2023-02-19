@@ -144,8 +144,9 @@ class lista {
 			}else if(pos == mTamanho-1){
                 insereNoFim(v);
                 mTamanho++;
-            }
-            else{
+            }else if(pos >= mTamanho){
+                cout << "posicão não existe." << endl;
+            }else{
 				No* aux = mInicio;
 				No* novo = new No(v);
 				unsigned posAux = 0;
