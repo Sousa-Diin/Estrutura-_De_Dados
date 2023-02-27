@@ -2,8 +2,9 @@
 using namespace std;
 
 typedef int dataType;
-const unsigned int capacidadeFilho = 4;
-const unsigned int capacidadeChave = 3;
+const unsigned int CAPACIDADEFILHO = 4;
+const unsigned int CAPACIDADECHAVE = 3;
+const unsigned int MEIO = 1;
 
 
 class No {
@@ -39,6 +40,10 @@ class lista {
 		No* mFim;
         dataType begin(){
             return mInicio->mDado;
+        }
+
+        dataType ending(){
+            return mFim->mDado;
         }
 	public:
 		lista(){
@@ -138,9 +143,13 @@ class lista {
 			
 			
 			if (pos == 0){
-				insereNaListaVazia(v);
+				insereNoInicio(v);
 				mTamanho++;
-			}else{
+			}else if(pos == mTamanho-1){
+                insereNoFim(v);
+                mTamanho++;
+            }
+            else{
 				No* aux = mInicio;
 				No* novo = new No(v);
 				unsigned posAux = 0;
@@ -219,26 +228,26 @@ class node{
     private:
         lista keys;
         node* parent;
-        node* children[capacidadeFilho];
+        node* children[CAPACIDADEFILHO];
         unsigned qtdFilhoAtual;
         bool isSheet;
 
         void cleanChild(){
-            for(int i = 0; i < capacidadeFilho; i++){
+            for(int i = 0; i < CAPACIDADEFILHO; i++){
                 children[i] = NULL;
             }
         }
         // burst = explodiu 
         bool burst(){
             unsigned countKey = keys.getTamanho();
-            cout << " qtd de key: " << countKey << " qtd maxima de key: " << capacidadeChave << endl;
-            return countKey == capacidadeChave;
+            cout << " qtd de key: " << countKey << " qtd maxima de key: " << CAPACIDADECHAVE << endl;
+            return countKey == CAPACIDADECHAVE;
         }
 
     public:
         node(){
             this->parent = NULL;
-            for(int i = 0; i < capacidadeFilho;i++)
+            for(int i = 0; i < CAPACIDADEFILHO;i++)
                 this->children[i] = NULL;
             
             this->isSheet = true;
@@ -247,7 +256,7 @@ class node{
         node(dataType key){
             this->parent = NULL;
             this->keys.insereNaListaVazia(key);
-            for(int i = 0; i < capacidadeFilho;i++)
+            for(int i = 0; i < CAPACIDADEFILHO;i++)
                 this->children[i] = NULL;
             //this->countKey = 1;
             this->isSheet = true;
@@ -281,51 +290,72 @@ class Tree234 {
 
         }
         /// @brief Função que dividi a lista de chaves caso atinja a capacidade maxima
-        node* split (node* raiz){
+        dataType split (node* raiz){
             node* temp = raiz;
             dataType left = temp->keys.removeNoInicio();
             dataType right = temp->keys.removeNoFim();
-            dataType dad = temp->keys.removeNoInicio();
+            dataType itemPromovido = temp->keys.removeNoInicio();
             /*cout << "dad: " << dad << endl;
             cout << "left: " << left << endl;
             cout << "right: " << right << endl;*/
-            delete raiz;
+            //delete root;
             temp->children[0] = new node(left);
             temp->children[1] = new node(right);
-            temp->parent = new node(dad); temp->parent->isSheet = false;
+            temp->parent = new node(itemPromovido); temp->parent->isSheet = false;
+            root = temp;
             //cout << "parent: " << temp->parent->keys[0] << endl;
-            return temp;
+            return itemPromovido;
+        }
+
+
+        void insereEmNohFolhaNaoCheio(node* oneNoh, dataType key){
+            if(oneNoh->keys.listaVazia()){
+                cout << "entrou na lista vazia..." <<endl;
+                oneNoh->keys.insereNoInicio(key);
+            }else if(key < oneNoh->keys.begin()){
+                cout << "entrou na insere no inicio..." <<endl;
+                oneNoh->keys.insereNoInicio(key);
+            }else if(key > oneNoh->keys.ending()){
+                cout << "entrou na insere no final..." <<endl;
+                oneNoh->keys.insereNoFim(key);
+            }else{
+                cout << "entrou na insere no meio..." <<endl;
+                oneNoh->keys.insereNaLista(key, MEIO);
+            }
+        
+        }
+
+        void insereEmNohIntermediarioNaoCheio(node* oneNoh,node*novoNoh, dataType itemPromovido){
+            unsigned pos = oneNoh->keys.mTamanho - 1;
+            //while(pos >= 0 and oneNoh->keys)
         }
 
         void insert(dataType key){
             if (root == NULL){
                 root = new node(key);
-            }else if(not root->burst() and root->keys.getTamanho()){ // se não estourou add chave
-            
-                if(key < root->keys.begin()){
-                    root->keys.insereNoInicio(key);
-                }else{
-                    root->keys.insereNoFim(key);
-                }
+            }else if(not root->burst()){ // se não estourou add chave
+                insereEmNohFolhaNaoCheio(root, key);
                     
             }else{
                 view();
-                root = split(root);
-                //cout << key << " - [X]" << "Limite maximo de chaves alcançado..." << endl;
+                dataType itemPromovido = 0;
+            
+                itemPromovido = split(root);
+                cout << "Item Promovido: " << itemPromovido << endl;
+                //root = oneNoh;
+                cout << "\n"<< key << " - [X]" << "Limite maximo de chaves alcançado..." << endl;
                 /*Arrumar duplicidade de código*/
-                if(key < root->parent->keys.begin()){
+                if(key < root->parent->keys.begin()){ //Se nova chave for menor
                     //insere na esquerda
+                    cout << "tenta dividir";
                     if(key < root->children[0]->keys.begin())
-                        root->children[0]->keys.insereNoInicio(key);
-                    root->children[0]->keys.insereNoFim(key);
+                        insereEmNohFolhaNaoCheio(root->children[0], key);
                 }else{
                     // insere na direita
                     cout << "entrou na condição do filho a diretia." << endl;
-                    if(key < root->children[1]->keys.begin())
-                        root->children[1]->keys.insereNoInicio(key);
-                    root->children[1]->keys.insereNoFim(key);
+                  if(key < root->children[1]->keys.begin())
+                        insereEmNohFolhaNaoCheio(root->children[1], key);
                 }
-                
             }
         }
 
@@ -339,15 +369,15 @@ class Tree234 {
         }
 
         void mostraFilho(){
+            if(root->children != NULL){
+                cout <<"\t";
+                root->parent->keys.percorreLista();
                 
-            cout <<"\t";
-            root->parent->keys.percorreLista();
-            
-            cout << "\n";
-            root->children[0]->keys.percorreLista();
-            cout << "\t\t";
-            root->children[1]->keys.percorreLista();
-            
+                cout << "\n";
+                root->children[0]->keys.percorreLista();
+                cout << "\t\t";
+                root->children[1]->keys.percorreLista();
+            }    
             
             cout << endl;
         }
@@ -356,18 +386,32 @@ class Tree234 {
 int main( )
 {
     Tree234 ttf;
-    ttf.insert(40);
-    ttf.insert(12);
-    ttf.insert(60);
-    ttf.insert(68);
-    ttf.insert(36);
-    ttf.insert(38);
-    //ttf.insert(60);
-    ttf.insert(48);
-    //ttf.view();
+    int e;
+    char start;
+    do{
+        cin >> start;
+        switch(start){
+            case 'i':
+                cin >> e;               
+                ttf.insert(e);
+                break;
+            case 'v':
+                ttf.mostraFilho();
+            break;
+            case 'f':
+                cout << "saindo...." << endl;
+            break;
+        }
+        
+
+    }while(start != 'f');
+   
+    
+
+    ttf.view();
     cout << endl;
 
-    ttf.mostraFilho();
+    
     /* code */
     //ttf.view();
     cout << endl;

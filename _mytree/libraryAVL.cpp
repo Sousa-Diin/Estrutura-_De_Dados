@@ -68,6 +68,7 @@ class avl {
      
         // busca, método iterativo
         noh* buscaAux(tipoChave chave);
+        noh* buscaAuxlocale(tipoChave chave);
         // função auxiliar do destrutor, usa percorrimento pós-ordem
         void destruirRecursivamente(noh* umNoh);
         void imprimirDir(const std::string& prefixo, const noh* meuNoh);
@@ -93,6 +94,7 @@ class avl {
         // inserção e remoção, métodos recursivos
         // busca retorna uma cópia do objeto armazenado
         dado busca(tipoChave chave);
+        dado buscaLocale(tipoChave chave);
         // efetua levantamento de quantos livros existem em um dado local
        int levantamento(string local);
 };
@@ -104,7 +106,7 @@ avl::~avl() {
 
 // destrutor é recursivo, fazendo percorrimento pós-ordem
 void avl::destruirRecursivamente(noh* umNoh) {
-    cout << "#WARNING implemente" << endl;
+    cout << "#WARNING implemente destrutor" << endl;
 }
 
 void avl::insere(const dado& umDado) {
@@ -199,6 +201,20 @@ noh* avl::buscaAux(tipoChave chave) {
     return atual;
 }
 
+noh* avl::buscaAuxlocale(tipoChave chave) {
+    noh* atual = raiz;
+    while (atual != NULL) {
+        if (atual->elemento.localizacao == chave) {
+            return atual;
+        } else if (chave < atual->elemento.localizacao ) {
+            atual = atual->left;
+        } else {
+            atual = atual->right;
+        }
+    }
+    return atual;
+}
+
 // busca elemento com uma dada chave na árvore e retorna o registro completo
 dado avl::busca(tipoChave chave) {
     noh* resultado = buscaAux(chave);
@@ -207,12 +223,28 @@ dado avl::busca(tipoChave chave) {
     else
         throw runtime_error("Erro na busca: elemento não encontrado!");
 }
-int avl::levantamentoAux(noh* umNoh, string local){
-    dado wanted = busca(local);
-    
-    return wanted.quantidadeDisponivel++;
+dado avl::buscaLocale(tipoChave chave) {
+    noh* resultado = buscaAuxlocale(chave);
+    if (resultado != NULL)
+        return resultado->elemento;
+    else
+        throw runtime_error("Erro na busca: elemento não encontrado!");
 }
+int avl::levantamentoAux(noh* umNoh, tipoChave local){
+    int qtd = 0;
+    if(umNoh != NULL){
+        levantamentoAux(umNoh->left, local);
+        while(local == umNoh->elemento.localizacao){
+            qtd += umNoh->elemento.quantidadeDisponivel;
+        }  
+        levantamentoAux(umNoh->right, local);
+    }
+
+    return qtd;
+}
+
 int avl::levantamento(string local){
+    
     return levantamentoAux(raiz, local);
 }
 
